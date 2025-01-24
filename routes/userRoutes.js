@@ -5,14 +5,21 @@ const User = require("../models/User");
 // Create a new user
 router.post("/", async (req, res) => {
   try {
-    console.log(req);
-    console.log(res);
+    // Validate request body
+    if (!req.body.name || !req.body.email || !req.body.age) {
+      return res
+        .status(400)
+        .json({ message: "Name, email, and age are required" });
+    }
+
+    // Create a new user
     const user = await User.create(req.body);
+
+    // Respond with the created user
     res.status(201).json(user);
   } catch (err) {
-    res
-      .status(500)
-      .json({ message: err.message, results: "not working working!!" });
+    console.error("Error creating user:", err.message);
+    res.status(500).json({ message: "Server Error", error: err.message });
   }
 });
 

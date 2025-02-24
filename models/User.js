@@ -22,10 +22,18 @@ const User = sequelize.define(
       type: DataTypes.INTEGER,
       allowNull: false,
     },
+    updatedAt: {
+      type: DataTypes.DATEONLY,
+      allowNull: false,
+    },
+    createdAt: {
+      type: DataTypes.DATEONLY,
+      allowNull: false,
+    },
   },
   {
     tableName: "user",
-    timestamps: true,
+    timestamps: false,
   }
 );
 

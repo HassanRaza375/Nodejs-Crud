@@ -3,7 +3,7 @@ const bodyParser = require("body-parser");
 const dotenv = require("dotenv");
 const { connectDB, syncModels } = require("./models/index");
 const userRoutes = require("./routes/userRoutes");
-
+const authRoutes = require("./routes/auth");
 // Load environment variables
 dotenv.config();
 const app = express();
@@ -33,6 +33,7 @@ syncModels();
 
 // Routes
 app.use("/api/users", userRoutes);
+app.use("/api/auth", authRoutes);
 
 const PORT = process.env.PORT || 5000;
 

@@ -1,5 +1,6 @@
 const { DataTypes } = require("sequelize");
 const { sequelize } = require("../config/db");
+
 const sUser = sequelize.define("sUser", {
   id: {
     type: DataTypes.INTEGER,
@@ -18,6 +19,21 @@ const sUser = sequelize.define("sUser", {
   password: {
     type: DataTypes.STRING,
     allowNull: false,
+  },
+  activeUser: {
+    type: DataTypes.BOOLEAN,
+    allowNull: false,
+    defaultValue: true, // User is active by default at signup
+  },
+  amount: {
+    type: DataTypes.DECIMAL(10, 2),
+    allowNull: false,
+    defaultValue: 0.0,
+  },
+  paymentStatus: {
+    type: DataTypes.STRING,
+    allowNull: false,
+    defaultValue: "un-paid",
   },
 });
 

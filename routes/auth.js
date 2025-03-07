@@ -3,7 +3,7 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const { body, validationResult } = require("express-validator");
 const User = require("../models/sUser");
-
+const authMiddleware = require('../middleware/auth')
 const router = express.Router();
 const JWT_SECRET = process.env.JWT_SECRET;
 
@@ -82,7 +82,7 @@ router.post(
   }
 );
 // Get all users
-router.get("/all", async (req, res) => {
+router.get("/all", authMiddleware, async (req, res) => {
   try {
     const users = await User.findAll();
     res.status(200).json(users);

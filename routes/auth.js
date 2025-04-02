@@ -3,7 +3,7 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const { body, validationResult } = require("express-validator");
 const User = require("../models/sUser");
-
+const authMiddleware = require("../middleware/auth");
 const router = express.Router();
 const JWT_SECRET = process.env.JWT_SECRET;
 
@@ -42,11 +42,10 @@ router.post(
       res.json({ message: "User registered successfully", token });
     } catch (error) {
       console.error(error);
-      res.status(500).json({ message: error });
+      res.status(500).json({ message: "Server error" });
     }
   }
 );
-
 // Login Route
 router.post(
   "/login",
@@ -65,12 +64,14 @@ router.post(
       // Find user by email
       let user = await User.findOne({ where: { email } });
       if (!user)
-        return res.status(400).json({ message: "Invalid credentials" });
+        return res.status(400).json({ message: "Invalid credentials", user });
 
       // Compare passwords
       const isMatch = await bcrypt.compare(password, user.password);
       if (!isMatch)
-        return res.status(400).json({ message: "Invalid credentials" });
+        return res
+          .status(400)
+          .json({ message: "Invalid credentials", isMatch });
 
       // Generate JWT
       const token = jwt.sign({ id: user.id }, JWT_SECRET, { expiresIn: "1h" });
@@ -83,7 +84,7 @@ router.post(
   }
 );
 // Get all users
-router.get("/all", async (req, res) => {
+router.get("/all", authMiddleware, async (req, res) => {
   try {
     const users = await User.findAll();
     res.status(200).json(users);
@@ -93,4 +94,32 @@ router.get("/all", async (req, res) => {
       .json({ message: err.message, results: "not working working!!" });
   }
 });
+
+// Delete User
+router.delete("/:id", authMiddleware, async (req, res) => {
+  try {
+    const user = await User.findByPk(req.params.id);
+    if (!user) return res.status(404).json({ message: "User not found" });
+    await user.destroy();
+    res.status(200).json({ message: "User deleted" });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+// active User
+router.put("/activateUser/:id", async (req, res) => {
+  try {
+    const user = await User.findByPk(req.params.id);
+    const { useractive } = req.body;
+    if (!user) return res.status(404).json({ message: "User not found" });
+    user.activeUser = useractive;
+    await user.save();
+    useractive === false
+      ? res.status(200).json({ message: "User In-activated", user })
+      : res.status(200).json({ message: "User Activated", user });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
 module.exports = router;
